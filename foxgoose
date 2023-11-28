@@ -1,0 +1,82 @@
+from collections import deque
+
+class State:
+    def _init_(self, fox, goose, beans, farmer, parent=None):
+        self.fox = fox
+        self.goose = goose
+        self.beans = beans
+        self.farmer = farmer
+        self.parent = parent
+
+    def _eq_(self, other):
+        return (self.fox, self.goose, self.beans, self.farmer) == (other.fox, other.goose, other.beans, other.farmer)
+
+    def _hash_(self):
+        return hash((self.fox, self.goose, self.beans, self.farmer))
+
+    def is_valid(self):
+        if (self.goose == self.fox and self.farmer != self.goose) or 
+           (self.goose == self.beans and self.farmer != self.goose):
+            return False
+        return True
+
+    def is_final(self):
+        return self.fox == 'right' and self.goose == 'right' and self.beans == 'right' and self.farmer == 'right'
+
+    def _repr_(self):
+        return f"Lion: {self.fox}, Goat: {self.goose}, Grass: {self.beans}, Farmer: {self.farmer}"
+
+def generate_moves():
+    return ['Lion', 'Goat', 'Grass', 'Farmer']
+
+def apply_move(state, move):
+    new_state = State(state.fox, state.goose, state.beans, state.farmer)
+    if move == 'Lion':
+        new_state.fox = 'right' if state.fox == 'left' else 'left'
+        new_state.farmer = 'right' if state.farmer == 'left' else 'left'
+    elif move == 'Goat':
+        new_state.goose = 'right' if state.goose == 'left' else 'left'
+        new_state.farmer = 'right' if state.farmer == 'left' else 'left'
+    elif move == 'Grass':
+        new_state.beans = 'right' if state.beans == 'left' else 'left'
+        new_state.farmer = 'right' if state.farmer == 'left' else 'left'
+    elif move == 'Farmer':
+        new_state.farmer = 'right' if state.farmer == 'left' else 'left'
+    return new_state
+
+def solve_game():
+    initial_state = State('left', 'left', 'left', 'left')
+    visited_states = set()
+    queue = deque([initial_state])
+
+    while queue:
+        current_state = queue.popleft()
+        if current_state.is_final():
+            solution = []
+            while current_state:
+                solution.insert(0, current_state)
+                current_state = current_state.parent
+            return solution
+        visited_states.add(current_state)
+
+        for move in generate_moves():
+            new_state = apply_move(current_state, move)
+            if new_state.is_valid() and new_state not in visited_states:
+                new_state.parent = current_state
+                queue.append(new_state)
+
+    return None
+
+solution = solve_game()
+
+if solution:
+    for index, state in enumerate(solution):
+        print("Step {}: Lion: {}, Goat: {}, Grass: {}, Farmer: {}".format(
+            index + 1, state.fox, state.goose, state.beans, state.farmer))
+else:
+    print("No solution found.")
+
+
+  
+  
+    

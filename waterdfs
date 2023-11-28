@@ -1,0 +1,57 @@
+def water_jug_dfs(x, y, target):
+    def dfs(a, b, path):
+        if (a, b) in visited_states:
+            return False
+        visited_states.add((a, b))
+
+        if a == target or b == target:
+            print("Problem solved!")
+            print("Actions:")
+            for action in path:
+                print(action)
+            return True
+
+        # Fill jug A
+        if a < x:
+            if dfs(x, b, path + [f"Fill A: ({x}, {b})"]):
+                return True
+
+        # Fill jug B
+        if b < y:
+            if dfs(a, y, path + [f"Fill B: ({a}, {y})"]):
+                return True
+
+        # Empty jug A
+        if a > 0:
+            if dfs(0, b, path + [f"Empty A: (0, {b})"]):
+                return True
+
+        # Empty jug B
+        if b > 0:
+            if dfs(a, 0, path + [f"Empty B: ({a}, 0)"]):
+                return True
+
+        # Pour water from A to B
+        if a > 0 and b < y:
+            pour_amount = min(a, y - b)
+            if dfs(a - pour_amount, b + pour_amount, path + [f"Pour A to B: ({a - pour_amount}, {b + pour_amount})"]):
+                return True
+
+        # Pour water from B to A
+        if b > 0 and a < x:
+            pour_amount = min(b, x - a)
+            if dfs(a + pour_amount, b - pour_amount, path + [f"Pour B to A: ({a + pour_amount}, {b - pour_amount})"]):
+                return True
+
+        return False
+
+    visited_states = set()
+
+    if not dfs(0, 0, []):
+        print("Solution not possible.")
+
+x = int(input("Enter the capacity of jug A: "))
+y = int(input("Enter the capacity of jug B: "))
+target = int(input("Enter the target amount of water: "))
+
+water_jug_dfs(x, y, target)
